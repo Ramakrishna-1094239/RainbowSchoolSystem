@@ -1,105 +1,143 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace RainbowSchoolSystem
 {
     class Program
     {
+        static string dir = @"C:\GII\FSD_Training\RainbowSchoolSystem\";
+        static string serializationFile = Path.Combine(dir, "TeacherData");
+        static int choice = 0;
+        static Random random = new Random();
         static void Main(string[] args)
         {
-
-            int Number1;
-
-            String Name = string.Empty;
-            String Class_Section = string.Empty;
-            Console.WriteLine("Please enter the ID");
-            Number1 = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("Please enter the Name");
-            Name = Console.ReadLine();
-           // int Result;
-            //Result = Number1 + Number2;
-            //Console.WriteLine("Sum of two Numbers:" + Result.ToString());
-            Console.ReadLine();
+            bool showOption = true;
+            while (showOption)
+            {
+                showOption = showMenu();
+            }
 
 
-            //Console.WriteLine("Hello World!");
 
-            //int Id = 0;
-            //String Name = string.Empty;
-            //String Class_Section = string.Empty;
-
-            ////Pass the filepath and filename to the StreamWriter 
-            //StreamWriter stw = new StreamWriter("C:\\GII\\FSD_Training\\RainbowSchoolSystem\\TeacherData.txt");
-
-            ////Write a line of text
-            //Console.WriteLine("Welcome to Rainbow ");
-
-            ////Write a line of text
-            //Console.WriteLine("Please enter the following Details");
-
-            ////Write a line of text
-            //Console.WriteLine("Please enter the ID");
-            //Id = Convert.ToInt32(Console.ReadLine());
-
-            ////Write a line of text
-            //Console.WriteLine("Please enter the Name");
-
-            ////Write a line of text
-            //Console.WriteLine("Please enter the Class and Section");
-
-
-            ////Write a second line of text
-            //stw.WriteLine("From the StreamWriter class");
-            ////Close the file
-            //stw.Close();
+            Console.Write("Press any key to close the application");
+            Console.ReadKey();
 
         }
 
-        //public void WriteToFile()
-        //{
-        //    try
-        //    {
-        //        int Id=0;
-        //        String Name=string.Empty;
-        //        String Class_Section = string.Empty;
+        /// <summary>
+        /// Show Menu Method 
+        /// </summary>
+        /// <returns></returns>
+        private static bool showMenu()
+        {
+            Console.WriteLine("Teacher Management\r");
+            Console.WriteLine("------------------------\n");
+            Console.WriteLine("Select operation to perform");
+            Console.WriteLine("\t1 - Add Teacher ");
+            Console.WriteLine("\t2 - Update Teacher");
+            Console.WriteLine("\t3 - See all teacher");
+            Console.WriteLine("\t4 - Exit");
+            Console.Write("Your option? ");
+            Console.WriteLine("Type a number, and then press Enter");
+            choice = Convert.ToInt32(Console.ReadLine());
+            switch (choice)
+            {
+                case 1:
+                    Console.WriteLine("You selected to add teacher");
+                    Console.WriteLine("Enter teacher name");
+                    string name = Console.ReadLine();
+                    Console.WriteLine("Enter class taken");
+                    string classTaken = Console.ReadLine();
+                    Console.WriteLine("Enter section name");
+                    string section = Console.ReadLine();
+                    Teacher teacher = new Teacher(random.Next(), name, classTaken, section);
+                    List<Teacher> teacherList = getTeacherList();
+                    teacherList.Add(teacher);
+                    saveTeacherToFile(teacherList);
+                    return true;
+                case 2:
+                    Console.WriteLine("You selected to update teacher");
+                    Console.WriteLine("Enter Teacher id to update");
+                    int idfromUser = Convert.ToInt32(Console.ReadLine());
+                    List<Teacher> teachers = getTeacherList();
+                    foreach (Teacher item in teachers)
+                    {
+                        if (item.Id == idfromUser)
+                        {
+                            Console.WriteLine("Enter teacher name");
+                            string updatedName = Console.ReadLine();
+                            Console.WriteLine("Enter class taken");
+                            string updatedClassTaken = Console.ReadLine();
+                            Console.WriteLine("Enter section name");
+                            string updatedSection = Console.ReadLine();
+                            item.Name = updatedName;
+                            item.ClassTaken = updatedClassTaken;
+                            item.Section = updatedSection;
+                            saveTeacherToFile(teachers);
+                            return true;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid id entered,Please enter a valid ID");
+                        }
+                    }
+                    return true;
+                case 3:
+                    Console.WriteLine("You selected to see all teacher");
+                    List<Teacher> teacherListFromFile = getTeacherList();
+                    foreach (Teacher item in teacherListFromFile)
+                    {
+                        Console.WriteLine(item);
+                    }
 
-        //        //Pass the filepath and filename to the StreamWriter 
-        //        StreamWriter stw = new StreamWriter("C:\\GII\\FSD_Training\\RainbowSchoolSystem\\TeacherData.txt");
+                    return true;
+                case 4:
+                    return false;
+                default:
+                    Console.WriteLine("Invalid option selected ");
+                    return true;
 
-        //        //Write a line of text
-        //        stw.WriteLine("Welcome to Rainbow ");
+            }
+        }
 
-        //        //Write a line of text
-        //        stw.WriteLine("Please enter the following Details");
+        /// <summary>
+        /// Save Teachers Details to File 
+        /// </summary>
+        /// <param name="teacherList"></param>
+        private static void saveTeacherToFile(List<Teacher> teacherList)
+        {
+            using (Stream stream = File.Open(serializationFile, FileMode.OpenOrCreate))
+            {
+                var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
 
-        //        //Write a line of text
-        //        stw.WriteLine("Please enter the ID");
-        //        Id = Convert.ToInt32(Console.ReadLine());
+                bformatter.Serialize(stream, teacherList);
+            }
+        }
 
-        //        //Write a line of text
-        //        stw.WriteLine("Please enter the Name");
+        /// <summary>
+        /// Get Teachers List
+        /// </summary>
+        /// <returns></returns>
+        private static List<Teacher> getTeacherList()
+        {
+            using (Stream stream = File.Open(serializationFile, FileMode.OpenOrCreate))
+            {
+                var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
 
-        //        //Write a line of text
-        //        stw.WriteLine("Please enter the Class and Section");
+                if (stream.Length < 1)
+                {
+                    return new List<Teacher>();
+                }
+                else
+                {
+                    List<Teacher> teacherListFromFile = (List<Teacher>)bformatter.Deserialize(stream);
+                    return teacherListFromFile;
+                }
 
-
-        //        //Write a second line of text
-        //        stw.WriteLine("From the StreamWriter class");
-        //        //Close the file
-        //        stw.Close();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine("Exception: " + e.Message);
-        //    }
-        //    finally
-        //    {
-        //        Console.WriteLine("Executing finally block.");
-        //    }
-        //}
+            }
+        }
 
 
     }
-
-    
 }
